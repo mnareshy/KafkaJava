@@ -1,0 +1,93 @@
+Sairam
+
+// create topic
+
+kafka-topics --zookeeper 127.0.0.1:2181 --topic topic12 --create --partitions 3 --replication-factor 1
+
+- replication-factor needs to be same or less than number of brokers
+
+// list topics
+
+kafka-topics --zookeeper 127.0.0.1:2181 --list
+
+// describe topics
+
+kafka-topics kafka-topics --zookeeper 127.0.0.1:2181 --describe
+
+kafka-topics kafka-topics --zookeeper 127.0.0.1:2181 --topic topic12 --describe
+
+// delete topics
+
+kafka-topics --zookeeper 127.0.0.1:2181 --topic topic13 --delete
+
+
+// Commondline Producer
+
+kafka-console-producer --broker-list localhost:9092 --topic topic12
+>message
+
+kafka-console-producer --broker-list localhost:9092 --topic topic12 --producer-property acks=all
+
+kafka-console-producer --broker-list 127.0.0.1:9092 --topic topic12 --property parse.key=true --property key.separator=,
+> key,value
+> another key,another value
+
+// Commandline consumer
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic topic12 \\ will read active messages
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic topic12 --from-beginning
+
+kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic topic12 --from-beginning --property print.key=true --property key.separator=,
+
+// Consumer Groups - consumers in group will read exclusive partitions
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic topic12  --group Application1 --from-beginning
+kafka-console-consumer --bootstrap-server localhost:9092 --topic topic12  --group Application2 --from-beginning
+
+// list consumer groups
+
+kafka-consumer-groups --bootstrap-server localhost:9092 --list
+
+kafka-consumer-groups --bootstrap-server localhost:9092 --describe --group Application2
+
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                  HOST            CLIENT-ID
+Application2    topic14         0          0               0               0               consumer-Application2-1-412b4a0c-52c9-47ac-83d8-00daffd5abdf /172.25.112.1   consumer-Application2-1
+Application2    topic14         1          3               3               0               consumer-Application2-1-412b4a0c-52c9-47ac-83d8-00daffd5abdf /172.25.112.1   consumer-Application2-1
+Application2    topic14         2          6               6               0               consumer-Application2-1-412b4a0c-52c9-47ac-83d8-00daffd5abdf /172.25.112.1   consumer-Application2-1
+Application2    topic12         0          85              85              0               -                                                            -               -
+
+LAG 0 indicates - read all the messages
+
+
+// reset consumer group offsets for topic
+
+kafka-consumer-groups --bootstrap-server localhost:9092 --group Application2 --reset-offsets --to-earliest --execute --topic topic14
+
+GROUP                          TOPIC                          PARTITION  NEW-OFFSET
+Application2                   topic14                        0          0
+Application2                   topic14                        1          0
+Application2                   topic14                        2          0
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic topic14  --group Application2 --from-beginning
+
+
+kafka-consumer-groups --bootstrap-server localhost:9092 --group Application2 --reset-offsets --shift-by  -2 --execute --topic topic14
+
+[2021-11-26 15:58:43,612] WARN New offset (-2) is lower than earliest offset for topic partition topic14-0. Value will be set to 0 (kafka.admin.ConsumerGroupCommand$)
+
+GROUP                          TOPIC                          PARTITION  NEW-OFFSET
+Application2                   topic14                        0          0
+Application2                   topic14                        1          1
+Application2                   topic14                        2          4
+
+
+
+
+
+
+
+
+
+
