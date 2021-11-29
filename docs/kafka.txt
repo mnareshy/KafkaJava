@@ -1,5 +1,12 @@
 Sairam
 
+// Start Zookeper and Kafka server
+
+zookeeper-server-start D:\Labs\software\kafka_2.12-2.8.0\config\zookeeper.properties
+kafka-server-start.bat D:\Labs\software\kafka_2.12-2.8.0\config\server.properties
+
+
+
 // create topic
 
 kafka-topics --zookeeper 127.0.0.1:2181 --topic topic12 --create --partitions 3 --replication-factor 1

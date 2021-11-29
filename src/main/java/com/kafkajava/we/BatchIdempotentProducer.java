@@ -7,16 +7,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-public class Producer {
+public class BatchIdempotentProducer {
 
-    static Logger logger = LoggerFactory.getLogger(Producer.class);
+    static Logger logger = LoggerFactory.getLogger(BatchIdempotentProducer.class);
 
     public static void main(String[] args) {
 
 
     for (int i=0 ; i<=20 ; i++){
 
-        sendEvent("topic27","CREATE_"+i, "PayLoad in Jason_"+i);
+        sendEvent("topic14","CREATE_"+i, "PayLoad in Jason");
     }
 
 
@@ -29,8 +29,25 @@ public class Producer {
         producerProperties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
         producerProperties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         producerProperties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
-        producerProperties.setProperty(ProducerConfig.ACKS_CONFIG,"all");
         producerProperties.setProperty("EVENT","Create");
+
+
+        // These configurations make the producer idempotent / remember safe produser comes with the cost of performance
+
+        producerProperties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,"true");
+        producerProperties.setProperty(ProducerConfig.ACKS_CONFIG,"all");
+        producerProperties.setProperty(ProducerConfig.RETRIES_CONFIG,Integer.toString(Integer.MAX_VALUE));
+
+        producerProperties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,"5");
+
+        // END - These configurations make the producer idempotent / remember safe produser comes with the cost of performance
+
+        // Batch Processing
+        producerProperties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG,"zsd");
+        producerProperties.setProperty(ProducerConfig.LINGER_MS_CONFIG,"20");
+        producerProperties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG,Integer.toString(32*1024));
+
+        // End-Batch Processing
 
 
 

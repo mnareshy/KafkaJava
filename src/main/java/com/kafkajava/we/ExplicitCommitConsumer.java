@@ -13,12 +13,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
-public class Consumer {
+public class ExplicitCommitConsumer {
 
-    static Logger logger = LoggerFactory.getLogger(Consumer.class);
+    static Logger logger = LoggerFactory.getLogger(ExplicitCommitConsumer.class);
     public static void main(String[] args) {
 
-        receive("SampleApp12", "earliest", Arrays.asList("topic17"));
+        receive("SampleApp12", "earliest", Arrays.asList("topic14"));
 
     }
 
@@ -31,7 +31,12 @@ public class Consumer {
         consumerProperties.setProperty(ConsumerConfig.GROUP_ID_CONFIG,application);
         consumerProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,offSetConf);
 
+        //disable auto commit of offsets
+        consumerProperties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,"false");
+
+
         KafkaConsumer<String,String> consumer = new KafkaConsumer<String, String>(consumerProperties);
+
 
         consumer.subscribe(topics);
 
@@ -47,7 +52,8 @@ public class Consumer {
                 logger.info("Headers -> {} " , consumerRecord.headers());
                 logger.info("Offset -> {} " , consumerRecord.offset());
 
-                
+                // sync offsets after reading record and doing something
+                consumer.commitSync();
             }
         }
 
